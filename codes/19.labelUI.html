@@ -1,0 +1,1034 @@
+<!--this program is developed by XTS-green-->
+<!--tianjin first central hospital&nankai university-->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>标签注释</title>
+<style>
+:root{
+  --bg-1:#f5f7fa;
+  --bg-2:#ffffff;
+  --panel:#ffffff;
+  --input-bg:#fafbff; /* 文本框浅色 */
+  --muted:#6b7280;
+  --accent:#1f6feb;
+  --save:#16a34a;
+  --del:#ef4444;
+  --undo:#f59e0b;
+  --glass:rgba(15,23,42,0.02);
+  --radius:10px;
+}
+html,body{height:100%;margin:0;font-family:"Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;background:linear-gradient(180deg,var(--bg-1),var(--bg-2));color:#111827}
+body{padding:18px;}
+
+/* Header */
+.app-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.title-area h2{margin:0;font-size:20px;color:var(--accent);letter-spacing:1px}
+.subtitle{color:var(--muted);font-size:12px}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#fileInput{background:transparent;color:inherit}
+
+
+/* Buttons */
+.btn{padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:600}
+.btn-save{background:linear-gradient(90deg,var(--save),#10b981);color:white}
+.btn-del{background:linear-gradient(90deg,var(--del),#ef4444);color:white}
+.btn-undo{background:linear-gradient(90deg,var(--undo),#f97316);color:white}
+.btn[title]{background:transparent;border:1px solid rgba(15,23,42,0.04);color:var(--muted)}
+
+/* Layout */
+:root{--sidebar-width:300px}
+.app-grid{display:block;}
+.sidebar{position:fixed;top:18px;left:18px;width:var(--sidebar-width);height:calc(100vh - 36px);padding:12px;overflow:auto;border-radius:12px;background:var(--panel);box-shadow:0 12px 32px rgba(2,6,23,0.06);border:1px solid rgba(15,23,42,0.04);z-index:1000}
+.sidebar.collapsed{display:none}
+.main-area{min-width:0;margin-left:calc(var(--sidebar-width) + 28px)}
+body.sidebar-collapsed .sidebar{display:none}
+body.sidebar-collapsed .main-area{margin-left:0}
+@media (max-width:880px){.sidebar{display:none}.main-area{margin-left:0}.toolbar{justify-content:flex-start}}
+
+/* Variable controls */
+.variable-controls{background:var(--panel);padding:12px;border-radius:12px;margin:6px 0;box-shadow:0 6px 18px rgba(2,6,23,0.04);border:1px solid rgba(15,23,42,0.04)}
+.variable-item{display:flex;align-items:center;gap:8px;margin:4px 6px}
+
+/* Card */
+.question-card{background:var(--panel);padding:12px;border-radius:10px;margin-bottom:10px;box-shadow:0 8px 20px rgba(2,6,23,0.04);border:1px solid rgba(15,23,42,0.04)}
+.question-card textarea, .question-card input[type="text"], .question-card input[type="number"]{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid rgba(15,23,42,0.06);background:var(--input-bg);color:#111}
+.question-card textarea{min-height:70px;resize:vertical}
+
+/* Option grid */
+.option-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.option-item{display:flex;align-items:center;gap:8px}
+.option-item label{min-width:25px;text-align:center;font-weight:600;color:var(--muted)}
+
+/* Pagination & jump */
+.pagination{margin:12px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pagination button{padding:6px 10px;border-radius:8px;border:1px solid rgba(15,23,42,0.04);background:transparent;color:var(--muted);cursor:pointer}
+.page-info{margin:0 8px;color:var(--muted)}
+.jump-page input{width:70px;padding:6px;border-radius:8px;border:1px solid rgba(15,23,42,0.06);background:var(--input-bg);color:#111}
+.jump-page select{padding:6px;border-radius:8px;border:1px solid rgba(15,23,42,0.06);background:var(--input-bg);color:#111}
+
+/* Modal viewer */
+.overlay{position:fixed;inset:0;background:rgba(2,6,23,0.08);display:flex;align-items:center;justify-content:center;z-index:9999}
+.floating-modal{background:var(--panel);color:#111827;width:86%;max-width:980px;max-height:84vh;padding:18px;border-radius:14px;box-shadow:0 18px 40px rgba(2,6,23,0.08);display:flex;flex-direction:column}
+.modal-textarea{width:100%;height:60vh;padding:12px;border-radius:8px;border:1px solid rgba(15,23,42,0.06);background:var(--input-bg);color:#111;resize:vertical}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.modal-close{background:linear-gradient(90deg,var(--del),#ef4444);color:white;padding:8px 12px;border-radius:8px}
+.modal-save{background:linear-gradient(90deg,var(--save),#10b981);color:white;padding:8px 12px;border-radius:8px}
+.modal-copy{background:linear-gradient(90deg,var(--accent),#1f6feb);color:white;padding:8px 12px;border-radius:8px}
+
+/* Short textarea */
+.short-textarea.expandable-textarea{cursor:pointer;border:1px dashed rgba(15,23,42,0.06);background:var(--input-bg)}
+.short-textarea.expandable-textarea:focus{outline:none;box-shadow:0 6px 20px rgba(31,111,235,0.06)}
+
+/* Responsive */
+@media (max-width:880px){.app-grid{grid-template-columns:1fr}.sidebar{display:none}.toolbar{justify-content:flex-start}}
+
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="toolbar">
+    <div class="header-note"><!--侧栏已启用，所有控制项位于左侧面板--></div>
+  </div>
+</header>
+
+<div class="app-grid">
+  <aside class="sidebar" id="sidebar" role="complementary" aria-label="侧边栏">
+  <div class="sidebar-inner">
+    <div class="sidebar-header">
+      <h2 class="sidebar-title">标签注释</h2>
+      <div class="sidebar-sub">本地题库 · 控件面板</div>
+    </div>
+
+    <div class="sidebar-actions" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-save" id="saveBtn" onclick="downloadJSON()">保存至本地</button>
+      <button class="btn btn-undo hidden" id="undoBtn">撤销删除</button>
+      <button class="btn" id="openFileBtn">导入</button>
+      <!-- 隐藏的文件选择框，由侧栏导入按钮触发 -->
+      <input type="file" id="fileInput" accept=".json" style="display:none">
+    </div>
+
+    <div class="variable-controls" id="variableControls" style="margin-top:12px">
+        <div class="section-title">显示变量控制：</div>
+        <div class="variable-group" id="variableGroup">
+            <!-- 变量复选框会动态生成 -->
+        </div>
+    </div>
+
+    <!-- content筛选控件 -->
+    <div class="variable-controls" id="contentFilterArea" style="margin-top:12px">
+        <div class="section-title">按content筛选：</div>
+        <div class="variable-group" id="contentFilterGroup">
+            <!-- 动态生成选项 -->
+        </div>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn" id="contentFilterSelectAll">全选</button>
+            <button class="btn" id="contentFilterClear">清除</button>
+        </div>
+    </div>
+
+    <!-- system筛选控件 -->
+    <div class="variable-controls" id="systemFilterArea" style="margin-top:12px">
+        <div class="section-title">按system筛选：</div>
+        <div class="variable-group" id="systemFilterGroup">
+            <!-- 动态生成选项 -->
+        </div>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn" id="systemFilterSelectAll">全选</button>
+            <button class="btn" id="systemFilterClear">清除</button>
+        </div>
+    </div>
+
+    <!-- disease筛选控件 -->
+    <div class="variable-controls" id="diseaseFilterArea" style="margin-top:12px">
+        <div class="section-title">按disease筛选：</div>
+        <div class="variable-group" id="diseaseFilterGroup">
+            <!-- 动态生成选项 -->
+        </div>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn" id="diseaseFilterSelectAll">全选</button>
+            <button class="btn" id="diseaseFilterClear">清除</button>
+        </div>
+    </div>
+
+    <div class="sidebar-pagination" style="margin-top:14px">
+        <div class="section-title">页面控制：</div>
+        <div class="pagination">
+
+            <button id="prevPage">上一页</button>
+            <button id="firstPage">首页</button>
+            <span class="page-info" id="pageInfo">第 1 页 / 共 0 页</span>
+            <button id="nextPage">下一页</button>
+            <button id="lastPage">尾页</button>
+
+            <div class="jump-page" style="margin-top:8px">
+                <input type="number" id="jumpPageInput" min="1" placeholder="页数">
+                <button id="jumpConfirmBtn">确定</button>
+                <select id="pageSelectDropdown">
+                    <option value="">-- 选择页面 --</option>
+                </select>
+            </div>
+
+            <div class="page-size-selector" style="margin-top:8px">
+                <label style="color:var(--muted);margin-right:8px">每页：</label>
+                <select id="pageSizeSelect">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+  </div>
+</aside>
+
+  <main class="main-area">
+    <!-- 页面控制已移至左侧悬浮侧栏 -->
+    <div class="page-placeholder" aria-hidden="true" style="height:10px"></div> 
+
+    <div id="questionContainer"></div>
+  </main>
+</div>
+
+<script>
+let questions = [];
+let filteredQuestions = [];
+let deletedStack = [];
+let sortAsc = true;
+let currentPage = 1;
+let pageSize = 10;
+let allVariables = new Set(); // 存储所有题目中出现的变量
+let visibleVariables = new Set(); // 存储当前可见的变量
+// 筛选器：content、system、disease（存储选中的值）
+let contentFilters = new Set();
+let systemFilters = new Set();
+let diseaseFilters = new Set();
+const fixedVisibleVar = 'question_type'; // 隐藏（对用户不可见）但保留于数据中的变量
+const hiddenVar = 'source_file'; // 始终隐藏的变量
+
+// 从题目数据中提取所有变量（排除始终隐藏的变量，包含options）
+function extractVariables() {
+    const variables = new Set();
+    
+    questions.forEach(question => {
+        Object.keys(question).forEach(key => {
+            // 只排除始终隐藏的变量，不排除options
+            if (key !== hiddenVar) {
+                variables.add(key);
+            }
+        });
+    });
+    
+    return variables;
+}
+
+// 更新变量控制区（排除固定显示和始终隐藏的变量，显示options复选框）
+function updateVariableControls() {
+    const variableGroup = document.getElementById("variableGroup");
+    variableGroup.innerHTML = "";
+    
+    allVariables.forEach(varName => {
+        // 排除固定显示的变量（无需复选框）和始终隐藏的变量
+        if (varName === fixedVisibleVar || varName === hiddenVar) return;
+        
+        const variableItem = document.createElement("div");
+        variableItem.className = "variable-item";
+        
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = `var_${varName}`;
+        checkbox.value = varName;
+        checkbox.checked = visibleVariables.has(varName);
+        
+        checkbox.addEventListener("change", function() {
+            if (this.checked) {
+                visibleVariables.add(varName);
+            } else {
+                visibleVariables.delete(varName);
+            }
+            renderQuestions();
+        });
+        
+        const label = document.createElement("label");
+        label.htmlFor = `var_${varName}`;
+        label.textContent = varName;
+        
+        variableItem.appendChild(checkbox);
+        variableItem.appendChild(label);
+        variableGroup.appendChild(variableItem);
+    });
+}
+
+// 安全的关键字匹配（防止字段缺失导致报错）
+function matchesKeyword(q, keyword) {
+    const qText = (q.question || "").toString().toLowerCase();
+    const optionsText = q.options ? Object.values(q.options).join(" ").toLowerCase() : "";
+    return qText.includes(keyword) || optionsText.includes(keyword);
+}
+
+// 判断变量值是否为空（用于按题目隐藏空变量框）
+function isEmptyValue(v) {
+    if (v === undefined || v === null) return true;
+    if (typeof v === 'string' && v.trim() === '') return true;
+    if (Array.isArray(v) && v.length === 0) return true;
+    if (typeof v === 'object' && Object.keys(v).length === 0) return true;
+    return false;
+} 
+
+// 处理文件上传
+document.getElementById("fileInput").addEventListener("change", function(evt){
+    const file = evt.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e){
+        try {
+            questions = JSON.parse(e.target.result);
+            filteredQuestions = [...questions];
+            
+            // 提取并更新变量
+            allVariables = extractVariables();
+            // 默认显示所有变量（排除始终隐藏的），并强制包含固定显示的变量
+            // 默认显示所有变量（排除始终隐藏的），但不自动将固定变量显示在 UI 上
+            visibleVariables = new Set([...allVariables]);
+            // 不将 fixedVisibleVar (question_type) 添加到可见变量集合，保持其对用户不可见
+            if (visibleVariables.has(fixedVisibleVar)) visibleVariables.delete(fixedVisibleVar);
+            updateVariableControls();
+            // 提取并初始化筛选选项
+            extractFilterValues();
+            // 重置监听器初始化标志，允许重新绑定
+            filterListenersInitialized = false;
+            initFilters();
+            applyFilters();
+
+            currentPage = 1; // 重置到第一页
+            renderQuestions();
+            updatePagination();
+            updatePageDropdown(); // 初始化页面下拉选择框
+        } catch (error) {
+            alert("JSON格式错误，请检查文件");
+            console.error(error);
+        }
+    };
+    reader.readAsText(file);
+});
+
+// 搜索功能已移除：所有操作将直接刷新为完整题库显示
+
+
+
+// 被移除的排序功能曾在此地
+
+
+// 撤销删除功能
+document.getElementById("undoBtn").onclick = function(){
+    if (deletedStack.length > 0) {
+        const restored = deletedStack.pop();
+        const item = restored.item || restored;
+        const originalIndex = typeof restored.index === 'number' ? restored.index : questions.length;
+        // 将题目插回原始位置或末尾
+        const insertPos = Math.min(Math.max(0, originalIndex), questions.length);
+        questions.splice(insertPos, 0, item);
+
+        // 保持排序状态（按 id 排序）
+        const direction = sortAsc ? 1 : -1;
+        questions.sort((a, b) => (a.id - b.id) * direction);
+
+        // 重新提取变量（排除始终隐藏的）
+        const newVariables = extractVariables();
+        newVariables.forEach(varName => allVariables.add(varName));
+        // 确保新变量默认可见，但不要将 fixedVisibleVar (question_type) 自动显示给用户
+        newVariables.forEach(varName => visibleVariables.add(varName));
+        if (visibleVariables.has(fixedVisibleVar)) visibleVariables.delete(fixedVisibleVar);
+        updateVariableControls();
+
+        // 恢复后显示被筛选的题库并定位到恢复题目所在页
+        applyFilters();
+        const restoredId = item.id;
+
+        // 定位到恢复题目所在页（保证用户能看到恢复的题目）
+        const newIndex = filteredQuestions.findIndex(q => q.id === restoredId);
+        if (newIndex !== -1) {
+            currentPage = Math.floor(newIndex / pageSize) + 1;
+            if (currentPage < 1) currentPage = 1;
+        } else {
+            currentPage = 1;
+        }
+
+        renderQuestions();
+        updatePagination();
+        updatePageDropdown(); // 撤销后更新页面下拉框
+    }
+
+    if (deletedStack.length === 0) {
+        this.classList.add("hidden");
+    }
+};
+
+// 分页控制 - 原有功能
+document.getElementById("firstPage").addEventListener("click", () => {
+    if (currentPage !== 1) {
+        currentPage = 1;
+        renderQuestions();
+        updatePagination();
+        updatePageDropdown(); // 更新下拉框选中状态
+    }
+});
+
+document.getElementById("prevPage").addEventListener("click", () => {
+    if (currentPage > 1) {
+        currentPage--;
+        renderQuestions();
+        updatePagination();
+        updatePageDropdown(); // 更新下拉框选中状态
+    }
+});
+
+document.getElementById("nextPage").addEventListener("click", () => {
+    const totalPages = getTotalPages();
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderQuestions();
+        updatePagination();
+        updatePageDropdown(); // 更新下拉框选中状态
+    }
+});
+
+document.getElementById("lastPage").addEventListener("click", () => {
+    const totalPages = getTotalPages();
+    if (currentPage !== totalPages) {
+        currentPage = totalPages;
+        renderQuestions();
+        updatePagination();
+        updatePageDropdown(); // 更新下拉框选中状态
+    }
+});
+
+document.getElementById("pageSizeSelect").addEventListener("change", function() {
+    pageSize = parseInt(this.value);
+    currentPage = 1; // 重置到第一页
+    renderQuestions();
+    updatePagination();
+    updatePageDropdown(); // 每页条数变化后更新页面下拉框
+});
+
+// 新增：跳转页面功能 - 输入框确认
+document.getElementById("jumpConfirmBtn").addEventListener("click", function() {
+    const jumpInput = document.getElementById("jumpPageInput");
+    const targetPage = parseInt(jumpInput.value.trim());
+    const totalPages = getTotalPages();
+    
+    if (isNaN(targetPage) || targetPage < 1 || targetPage > totalPages) {
+        alert(`请输入1-${totalPages}之间的有效页数`);
+        jumpInput.value = "";
+        return;
+    }
+    
+    currentPage = targetPage;
+    renderQuestions();
+    updatePagination();
+    updatePageDropdown(); // 更新下拉框选中状态
+    jumpInput.value = ""; // 清空输入框
+});
+
+// 新增：跳转页面功能 - 下拉框选择
+document.getElementById("pageSelectDropdown").addEventListener("change", function() {
+    const targetPage = parseInt(this.value);
+    if (!isNaN(targetPage)) {
+        currentPage = targetPage;
+        renderQuestions();
+        updatePagination();
+    }
+});
+
+// 新增：输入框按回车触发跳转
+document.getElementById("jumpPageInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        document.getElementById("jumpConfirmBtn").click();
+    }
+});
+
+(function(){
+    const fileInput = document.getElementById('fileInput');
+    const openFileBtn = document.getElementById('openFileBtn');
+    if (openFileBtn && fileInput) {
+        openFileBtn.addEventListener('click', function(){ fileInput.click(); });
+    }
+})();
+
+// 获取总页数
+function getTotalPages() {
+    return Math.ceil(filteredQuestions.length / pageSize) || 1;
+}
+
+// 更新分页信息（包含跳转控件状态）
+function updatePagination() {
+    const totalPages = getTotalPages();
+    document.getElementById("pageInfo").textContent = `第 ${currentPage} 页 / 共 ${totalPages} 页`;
+    
+    // 控制按钮状态
+    document.getElementById("firstPage").disabled = currentPage === 1;
+    document.getElementById("prevPage").disabled = currentPage === 1;
+    document.getElementById("nextPage").disabled = currentPage === totalPages;
+    document.getElementById("lastPage").disabled = currentPage === totalPages;
+    
+    // 限制输入框最大值
+    document.getElementById("jumpPageInput").max = totalPages;
+}
+
+// 新增：更新页面下拉选择框选项
+function updatePageDropdown() {
+    const dropdown = document.getElementById("pageSelectDropdown");
+    const totalPages = getTotalPages();
+    
+    // 清空现有选项（保留默认提示）
+    dropdown.innerHTML = '<option value="">-- 选择页面 --</option>';
+    
+    // 生成新的页面选项（最多显示50个选项，避免下拉框过长）
+    const maxOptions = 50;
+    const startPage = totalPages > maxOptions ? Math.max(1, currentPage - 25) : 1;
+    const endPage = totalPages > maxOptions ? Math.min(totalPages, currentPage + 24) : totalPages;
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = `第 ${i} 页`;
+        if (i === currentPage) {
+            option.selected = true; // 选中当前页
+        }
+        dropdown.appendChild(option);
+    }
+    
+    // 如果总页数超过50，添加首尾页快捷选项
+    if (totalPages > maxOptions) {
+        if (startPage > 1) {
+            dropdown.insertBefore(createOption(1, "第 1 页"), dropdown.children[1]);
+            if (startPage > 2) {
+                dropdown.insertBefore(createOption("", "..."), dropdown.children[2]);
+            }
+        }
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                dropdown.appendChild(createOption("", "..."));
+            }
+            dropdown.appendChild(createOption(totalPages, `第 ${totalPages} 页`));
+        }
+    }
+}
+
+// 辅助函数：创建下拉框选项
+function createOption(value, text) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = text;
+    if (value && parseInt(value) === currentPage) {
+        option.selected = true;
+    }
+    return option;
+}
+
+// 渲染当前页题目
+function renderQuestions(){
+    const container = document.getElementById("questionContainer");
+    container.innerHTML = "";
+
+    if (filteredQuestions.length === 0) {
+        container.innerHTML = "<p>没有找到匹配的题目</p>";
+        return;
+    }
+
+    // 计算当前页的题目范围
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, filteredQuestions.length);
+    const currentPageQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+    currentPageQuestions.forEach((q) => {
+        const globalIndex = questions.indexOf(q);
+        const card = document.createElement("div");
+        card.className = "question-card";
+        
+        // 根据题目类型生成不同的HTML结构，仅当options可见时才生成
+        let optionsHtml = "";
+        // 优化选项布局，使用网格布局避免独占一行
+        if (visibleVariables.has('options') && q.question_type === "选择题" && q.options) {
+            optionsHtml = `
+                <div class="option-section">
+                    <div class="option-header">选项：</div>
+                    <ul class="option-grid">
+                        ${Object.entries(q.options).map(([key, value]) => `
+                            <li class="option-item">
+                                <label>${key}</label>
+                                <input type="text" data-id="${q.id}" data-option="${key}" 
+                                       value="${value}" onchange="updateOptionById(${q.id}, '${key}', this.value)">
+                            </li>
+                        `).join("")}
+                    </ul>
+                </div>
+            `;
+        }
+
+        // 动态生成可见变量的编辑区域
+        let variablesHtml = '';
+        
+        // 保持 question_type 在数据中保留但不在 UI 中显示（对用户不可见）
+        // 如果需要调试或临时显示，可在控制台打印：
+        // console.debug('question_type for id', q.id, q[fixedVisibleVar]);
+        
+        // 再添加其他可见变量（排除固定、隐藏和options）
+        visibleVariables.forEach(varName => {
+            if (varName === fixedVisibleVar || varName === hiddenVar || varName === 'options') return;
+
+            const value = q[varName];
+
+            // 如果该题此变量为空，则不显示该变量的输入框
+            if (isEmptyValue(value)) return;
+
+            // 根据变量类型选择合适的输入框（修复：使用清晰的 if / else if 逻辑，避免嵌套导致的混淆与错误）
+            let inputHtml = '';
+            if (varName === 'id' || (!isNaN(Number(value)) && typeof value !== 'string')) {
+                // 数值类型或明确为数字的情况使用数字输入框
+                inputHtml = `<input type="number" data-id="${q.id}" data-field="${varName}" 
+                                   value="${value}" onchange="updateFieldById(${q.id}, '${varName}', parseInt(this.value))">`;
+            } else if (varName === 'question' || varName === '文本' || (typeof value === 'string' && value.length > 200)) {
+                // 对于主问句及可能很长的文本字段（例如 '文本' 或长度超过 200 的字符串），使用短文本框并支持点击展开悬浮查看器
+                const safeValue = (value === undefined || value === null) ? '' : value;
+                // 使用 rows=3 的短文本框作为预览，点击后可展开查看器
+                inputHtml = `<textarea class="short-textarea expandable-textarea" data-id="${q.id}" data-field="${varName}" rows="3" onchange="updateFieldById(${q.id}, '${varName}', this.value)">${safeValue}</textarea>`;
+            } else {
+                // 默认使用文本输入框
+                inputHtml = `<input type="text" data-id="${q.id}" data-field="${varName}"
+                                   value="${value}" onchange="updateFieldById(${q.id}, '${varName}', this.value)">`;
+            }
+
+            variablesHtml += `
+                <div class="section-title">${varName}：</div>
+                ${inputHtml}
+            `;
+        });
+
+        // 构建卡片内容
+        card.innerHTML = variablesHtml + optionsHtml + `
+            <button class="btn btn-save" onclick="saveQuestionById(${q.id})">保存修改</button>
+            <button class="btn btn-del" onclick="deleteQuestionById(${q.id})">删除</button>
+        `;
+
+        container.appendChild(card);
+    });
+    // 附加：为可展开的短文本区域绑定点击事件，打开悬浮查看器
+    attachExpandableToElements();
+}
+
+// 更新题目字段（通过题目id定位，避免索引错位）
+function updateFieldById(id, field, value) {
+    const idx = questions.findIndex(q => q.id === id);
+    if (idx === -1) return;
+    // 禁止修改固定显示的变量和始终隐藏的变量
+    if (field === fixedVisibleVar || field === hiddenVar) return;
+
+    questions[idx][field] = value;
+
+    // 如果添加了新字段（排除隐藏变量），更新变量列表
+    if (field !== hiddenVar) {
+        allVariables.add(field);
+        visibleVariables.add(field);
+        updateVariableControls();
+    }
+
+    // 如果修改了id，维持排序
+    if (field === 'id') {
+        const direction = sortAsc ? 1 : -1;
+        questions.sort((a, b) => (a.id - b.id) * direction);
+    }
+
+    // 立即刷新视图以避免索引/渲染不同步的问题（不使用搜索过滤）
+    filteredQuestions = [...questions];
+    renderQuestions();
+    updatePagination();
+    updatePageDropdown();
+} 
+
+// 更新选择题选项（通过题目id定位）
+function updateOptionById(id, optionKey, value) {
+    const idx = questions.findIndex(q => q.id === id);
+    if (idx === -1) return;
+
+    if (!questions[idx].options) {
+        questions[idx].options = {};
+    }
+    questions[idx].options[optionKey] = value;
+
+    // 确保options变量被添加到可见变量列表
+    allVariables.add('options');
+    visibleVariables.add('options');
+    updateVariableControls();
+
+    // 刷新视图（不使用搜索过滤）
+    filteredQuestions = [...questions];
+    renderQuestions();
+} 
+
+// 附加：绑定点击事件到短文本框以打开悬浮查看器
+function attachExpandableToElements() {
+    document.querySelectorAll('.expandable-textarea').forEach(elem => {
+        if (elem.dataset.expandBound) return;
+        elem.style.cursor = 'pointer';
+        elem.addEventListener('click', function(e) {
+            openFloatingViewer(this.value, parseInt(this.dataset.id), this.dataset.field);
+        });
+        elem.dataset.expandBound = '1';
+    });
+}
+
+// 打开悬浮查看器：展示完整文本，并支持复制/保存/关闭
+function openFloatingViewer(content, id, field) {
+    // 如果已有打开的查看器则不重复打开
+    if (document.getElementById('floatingOverlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'floatingOverlay';
+    overlay.className = 'overlay';
+    overlay.addEventListener('click', function(e) {
+        // 点击遮罩空白处关闭
+        if (e.target === overlay) closeFloatingViewer();
+    });
+
+    const modal = document.createElement('div');
+    modal.className = 'floating-modal';
+    modal.innerHTML = `
+        <div><strong>字段：${field} （题目ID: ${id}）</strong></div>
+        <textarea id="modalTextarea" class="modal-textarea">${content}</textarea>
+        <div class="modal-actions">
+            <button class="btn modal-copy" id="modalCopyBtn">复制</button>
+            <button class="btn modal-close" id="modalCloseBtn">关闭</button>
+            <button class="btn modal-save" id="modalSaveBtn">保存</button>
+        </div>
+    `;
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    const modalTextarea = document.getElementById('modalTextarea');
+    modalTextarea.focus();
+
+    document.getElementById('modalCloseBtn').addEventListener('click', closeFloatingViewer);
+    document.getElementById('modalSaveBtn').addEventListener('click', function() {
+        const newVal = document.getElementById('modalTextarea').value;
+        updateFieldById(id, field, newVal);
+        closeFloatingViewer();
+    });
+    document.getElementById('modalCopyBtn').addEventListener('click', function() {
+        const text = modalTextarea.value;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => alert('已复制到剪贴板'));
+        } else {
+            modalTextarea.select();
+            try { document.execCommand('copy'); alert('已复制到剪贴板'); } catch(e) { alert('复制失败'); }
+        }
+    });
+
+    // ESC 关闭
+    function escListener(e) {
+        if (e.key === 'Escape') closeFloatingViewer();
+    }
+    document.addEventListener('keydown', escListener);
+    overlay._escListener = escListener;
+}
+
+function closeFloatingViewer() {
+    const overlay = document.getElementById('floatingOverlay');
+    if (!overlay) return;
+    if (overlay._escListener) document.removeEventListener('keydown', overlay._escListener);
+    overlay.remove();
+}
+
+// 保存修改
+function saveQuestionById(id) {
+    const idx = questions.findIndex(q => q.id === id);
+    if (idx === -1) {
+        alert('题目未找到，无法保存');
+        return;
+    }
+    alert(`题目 ${questions[idx].id} 修改已保存！`);
+    renderQuestions();
+    updatePagination();
+    updatePageDropdown();
+} 
+
+// 删除题目（通过题目id定位）
+function deleteQuestionById(id) {
+    const index = questions.findIndex(q => q.id === id);
+    if (index === -1) return;
+    if (confirm(`确定要删除题目 ${questions[index].id} 吗？`)) {
+        // 存储被删除项与其原始索引，便于精确撤销
+        deletedStack.push({ item: questions[index], index: index });
+        questions.splice(index, 1);
+
+        // 删除后显示被筛选的题库
+        applyFilters();
+
+        document.getElementById("undoBtn").classList.remove("hidden");
+
+        // 检查当前页是否还有数据
+        const totalPages = getTotalPages();
+        if (currentPage > totalPages && totalPages > 0) {
+            currentPage = totalPages;
+        }
+
+        renderQuestions();
+        updatePagination();
+        updatePageDropdown(); // 删除后更新页面下拉框
+    }
+} 
+
+// 下载JSON文件
+function downloadJSON() {
+    // 导出筛选后的题目
+    const toExport = [...filteredQuestions];
+    if (toExport.length === 0) { alert('当前筛选条件下没有题目可保存'); return; }
+    const blob = new Blob([JSON.stringify(toExport, null, 2)], {type: "application/json"});
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "edited_questions.json";
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+// -------- 筛选功能 --------
+// 从整个JSON文件中提取content、system、disease的所有可能取值
+let contentValues = new Set();
+let systemValues = new Set();
+let diseaseValues = new Set();
+
+function extractFilterValues() {
+    contentValues = new Set();
+    systemValues = new Set();
+    diseaseValues = new Set();
+    
+    questions.forEach(q => {
+        if (q.content !== undefined && q.content !== null && q.content !== '') {
+            contentValues.add(String(q.content));
+        }
+        if (q.system !== undefined && q.system !== null && q.system !== '') {
+            systemValues.add(String(q.system));
+        }
+        if (q.disease !== undefined && q.disease !== null && q.disease !== '') {
+            diseaseValues.add(String(q.disease));
+        }
+    });
+    
+    // 转换为排序后的数组
+    contentValues = new Set([...contentValues].sort());
+    systemValues = new Set([...systemValues].sort());
+    diseaseValues = new Set([...diseaseValues].sort());
+}
+
+// 更新筛选UI（生成复选框）
+function updateFilterUI() {
+    // 更新content筛选UI
+    const contentGroup = document.getElementById('contentFilterGroup');
+    if (contentGroup) {
+        contentGroup.innerHTML = '';
+        contentValues.forEach(val => {
+            const label = document.createElement('label');
+            label.className = 'variable-item';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `contentFilter_${val}`;
+            checkbox.value = val;
+            checkbox.checked = contentFilters.has(val);
+            checkbox.addEventListener('change', function(e) {
+                if (e.target.checked) {
+                    contentFilters.add(val);
+                } else {
+                    contentFilters.delete(val);
+                }
+                applyFilters();
+            });
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(val));
+            contentGroup.appendChild(label);
+        });
+    }
+    
+    // 更新system筛选UI
+    const systemGroup = document.getElementById('systemFilterGroup');
+    if (systemGroup) {
+        systemGroup.innerHTML = '';
+        systemValues.forEach(val => {
+            const label = document.createElement('label');
+            label.className = 'variable-item';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `systemFilter_${val}`;
+            checkbox.value = val;
+            checkbox.checked = systemFilters.has(val);
+            checkbox.addEventListener('change', function(e) {
+                if (e.target.checked) {
+                    systemFilters.add(val);
+                } else {
+                    systemFilters.delete(val);
+                }
+                applyFilters();
+            });
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(val));
+            systemGroup.appendChild(label);
+        });
+    }
+    
+    // 更新disease筛选UI
+    const diseaseGroup = document.getElementById('diseaseFilterGroup');
+    if (diseaseGroup) {
+        diseaseGroup.innerHTML = '';
+        diseaseValues.forEach(val => {
+            const label = document.createElement('label');
+            label.className = 'variable-item';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `diseaseFilter_${val}`;
+            checkbox.value = val;
+            checkbox.checked = diseaseFilters.has(val);
+            checkbox.addEventListener('change', function(e) {
+                if (e.target.checked) {
+                    diseaseFilters.add(val);
+                } else {
+                    diseaseFilters.delete(val);
+                }
+                applyFilters();
+            });
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(val));
+            diseaseGroup.appendChild(label);
+        });
+    }
+}
+
+// 初始化筛选器（默认全选）
+function initFilters() {
+    // 默认全选所有值
+    contentFilters = new Set(contentValues);
+    systemFilters = new Set(systemValues);
+    diseaseFilters = new Set(diseaseValues);
+    
+    updateFilterUI();
+    initFilterListeners();
+}
+
+// 初始化筛选器按钮监听
+function initFilterListeners() {
+    // content筛选按钮
+    const contentSelectAll = document.getElementById('contentFilterSelectAll');
+    const contentClear = document.getElementById('contentFilterClear');
+    if (contentSelectAll) {
+        contentSelectAll.addEventListener('click', function() {
+            contentFilters = new Set(contentValues);
+            updateFilterUI();
+            applyFilters();
+        });
+    }
+    if (contentClear) {
+        contentClear.addEventListener('click', function() {
+            contentFilters = new Set();
+            updateFilterUI();
+            applyFilters();
+        });
+    }
+    
+    // system筛选按钮
+    const systemSelectAll = document.getElementById('systemFilterSelectAll');
+    const systemClear = document.getElementById('systemFilterClear');
+    if (systemSelectAll) {
+        systemSelectAll.addEventListener('click', function() {
+            systemFilters = new Set(systemValues);
+            updateFilterUI();
+            applyFilters();
+        });
+    }
+    if (systemClear) {
+        systemClear.addEventListener('click', function() {
+            systemFilters = new Set();
+            updateFilterUI();
+            applyFilters();
+        });
+    }
+    
+    // disease筛选按钮
+    const diseaseSelectAll = document.getElementById('diseaseFilterSelectAll');
+    const diseaseClear = document.getElementById('diseaseFilterClear');
+    if (diseaseSelectAll) {
+        diseaseSelectAll.addEventListener('click', function() {
+            diseaseFilters = new Set(diseaseValues);
+            updateFilterUI();
+            applyFilters();
+        });
+    }
+    if (diseaseClear) {
+        diseaseClear.addEventListener('click', function() {
+            diseaseFilters = new Set();
+            updateFilterUI();
+            applyFilters();
+        });
+    }
+}
+
+// 应用筛选并刷新分页/视图
+function applyFilters() {
+    // 如果所有筛选器都为空，显示所有题目
+    if (contentFilters.size === 0 && systemFilters.size === 0 && diseaseFilters.size === 0) {
+        filteredQuestions = [...questions];
+    } else {
+        filteredQuestions = questions.filter(q => {
+            // 检查content筛选
+            let contentMatch = true;
+            if (contentFilters.size > 0) {
+                const qContent = q.content !== undefined && q.content !== null ? String(q.content) : '';
+                // 如果该题目没有content值，且筛选器不为空，则不匹配
+                if (qContent === '') {
+                    contentMatch = false;
+                } else {
+                    contentMatch = contentFilters.has(qContent);
+                }
+            }
+            
+            // 检查system筛选
+            let systemMatch = true;
+            if (systemFilters.size > 0) {
+                const qSystem = q.system !== undefined && q.system !== null ? String(q.system) : '';
+                // 如果该题目没有system值，且筛选器不为空，则不匹配
+                if (qSystem === '') {
+                    systemMatch = false;
+                } else {
+                    systemMatch = systemFilters.has(qSystem);
+                }
+            }
+            
+            // 检查disease筛选
+            let diseaseMatch = true;
+            if (diseaseFilters.size > 0) {
+                const qDisease = q.disease !== undefined && q.disease !== null ? String(q.disease) : '';
+                // 如果该题目没有disease值，且筛选器不为空，则不匹配
+                if (qDisease === '') {
+                    diseaseMatch = false;
+                } else {
+                    diseaseMatch = diseaseFilters.has(qDisease);
+                }
+            }
+            
+            // 必须同时满足所有筛选条件（AND逻辑）
+            return contentMatch && systemMatch && diseaseMatch;
+        });
+    }
+    
+    // 保证当前页有效并重置到第一页
+    currentPage = 1;
+    renderQuestions();
+    updatePagination();
+    updatePageDropdown();
+}
+</script>
+
+</body>
+</html>
